@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: config
+  labels:
+    app: {{ include "jassistant.name" . }}
+    chart: {{ include "jassistant.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  jassistant.properties: {{ index .Values "config" | quote }}

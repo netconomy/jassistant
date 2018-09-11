@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <title>JASSISTANT - Kanban analysis</title>
+</head>
+<body>
+<section>
+	
+    <h1>Kanban analysis</h1>
+
+    <form method="get" action="/">
+        <div class="form-group required">
+           <label class="control-label" for="input_projects">Projects</label>
+           <input class="form-control" id="input_projects" name="input_projects" type="text" maxlength="255" required/>
+           <p class="help-block">Please specify the short names of the projects you want to analyze, separated by ','.<br/>e.g.: TST,PROJ</p>
+        </div>
+        <div class="form-group required">
+           <label class="control-label">Start date</label>
+           <div class="form-group">
+              <input class="form-control datepicker" id="input_start_date" name="input_start_date" placeholder="yyyy-mm-dd" required/>
+           </div>
+           <p class="help-block">Please specify the first day of the time window to analyze.</p>
+        </div>
+        <div class="form-group required">
+           <label class="control-label">End date</label>
+           <div class="form-group">
+              <input class="form-control datepicker" id="input_end_date" name="input_end_date" placeholder="yyyy-mm-dd" required/>
+           </div>
+           <p class="help-block">Please specify the last day of the time window to analyze.</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="input_alt_estimations">Alternative estimations</label>
+            <div class="checkbox">
+                <label>
+                    <input id="input_alt_estimations" name="input_alt_estimations" type="checkbox"/>
+                </label>
+            </div>
+            <p class="help-block">If checked alternative estimations are used instead of story points, according to configuration. e.g.: T-Shirt-Sizes</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="input_light_analysis">Light analysis</label>
+            <div class="checkbox">
+                <label>
+                    <input id="input_light_analysis" name="input_light_analysis" type="checkbox" checked="checked"/>
+                </label>
+            </div>
+            <p class="help-block">The light analysis contains no further information about issues.</p>
+        </div>
+        <div class="form-group">
+           <label class="control-label" for="input_excluded_status">Exclude status</label>
+           <input class="form-control" id="input_excluded_status" name="input_excluded_status" type="text" maxlength="255"/>
+           <p class="help-block">You can define which status to exclude from the analysis, separated by ','.<br/>e.g.: Open,In Progress</p>
+        </div>
+        <div class="form-group">
+           <label class="control-label" for="input_excluded_types">Exclude issue types</label>
+           <input class="form-control" id="input_excluded_types" name="input_excluded_types" type="text" maxlength="255"/>
+           <p class="help-block">You can define which issue types to exclude from the analysis, separated by ','.<br/>e.g.: Defect,Test</p>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="input_and_clause">And clause</label>
+          <input class="form-control" id="input_and_clause" name="input_and_clause" type="text" maxlength="255"/>
+          <p class="help-block">Here you can add a clause that will be added to the search query with an AND.<br/>e.g.: stream in (MidTerm, EMPTY)</p>
+        </div>
+        <div class="form-group" th:replace="~{forms/fragments::output(downloadText='JSON file download')}"></div>
+        <div class="form-group">
+           <button class="button button--primary" id="button" type="submit">Send request</button>
+        </div>
+    </form>
+</section>
+<script type="text/javascript">
+   $('.datepicker').datepicker({
+       format: 'yyyy-mm-dd',
+       todayBtn: 'linked',
+       todayHighlight: true,
+       autoclose: true,
+       weekStart: 1
+   })
+   function reactivateButton() {
+       setTimeout(function(){document.getElementById('button').disabled = false;}, 10000);
+   }
+   (function() {
+        var form = document.getElementsByTagName('form')[0];
+
+        form.addEventListener('submit', function(evt) {
+
+            document.getElementById('button').disabled = true;
+
+            evt.preventDefault();
+
+            var baseUrl = form.getAttribute('action');
+            var outputType = document.getElementById('input_output_type').value;
+            var projects = document.getElementById('input_projects').value;
+            var startDate = document.getElementById('input_start_date').value;
+            var endDate = document.getElementById('input_end_date').value;
+            var altEstimations = document.getElementById('input_alt_estimations').checked;
+            var lightAnalysis = document.getElementById('input_light_analysis').checked;
+            var exclStatus = document.getElementById('input_excluded_status').value;
+            var exclTypes = document.getElementById('input_excluded_types').value;
+            var andClause = document.getElementById('input_and_clause').value;
+            var finalUrl;
+
+            finalUrl = baseUrl + outputType + '/v1/kanbanAnalysis/byProjects/' + projects + '/'
+                    + '?startDate=' + startDate + '&endDate=' + endDate + '&withAltEstimations=' + altEstimations
+                    + '&lightAnalysis=' + lightAnalysis;
+
+            if(exclStatus != null && exclStatus != '') {
+                finalUrl = finalUrl + '&excludedStatus=' + exclStatus;
+            }
+
+            if(exclTypes != null && exclTypes != '') {
+                finalUrl = finalUrl + '&excludedTypes=' + exclTypes;
+            }
+
+            if(andClause != null && andClause != '') {
+                finalUrl = finalUrl + '&andClause=' + andClause;
+            }
+
+            reactivateButton();
+
+            window.open(finalUrl);
+
+        }, false);
+    })();
+</script>
+</body>
+</html>

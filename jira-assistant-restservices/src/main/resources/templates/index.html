@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{})}">
+
+<head>
+    <title>JASSISTANT</title>
+</head>
+
+<body>
+<section>
+
+    <br />
+
+    <div class="list-group">
+        <a th:each="form : ${forms}" class="list-group-item" th:href="@{/forms/{form}.html(form=${form.left})}" th:text="${form.right}"></a>
+    </div>
+
+    <a href="./swagger-ui.html">REST API Documentation</a>
+
+</section>
+</body>
+
+</html>

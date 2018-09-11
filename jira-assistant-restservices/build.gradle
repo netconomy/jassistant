@@ -1,0 +1,44 @@
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
+dependencies {
+    compile project(':jira-assistant-base')
+    compile project(':jira-assistant-sprintanalysis')
+    compile project(':jira-assistant-kanbananalysis')
+	compile project(':jira-assistant-sprintforecast')
+	compile project(':jira-assistant-reopenfactor')
+	compile project(':jira-assistant-linksearch')
+    compile project(':jira-assistant-estimationstatistics')
+    compile project(':jira-assistant-projectstatus')
+    compile project(':jira-assistant-supportanalysis')
+    compile project(':jira-assistant-accountprogress')
+    compile project(':jira-assistant-billing')
+
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'com.getsentry.raven:raven-logback:8.0.3'
+
+    compile 'org.quartz-scheduler:quartz:2.3.0'
+    compile 'org.springframework:spring-context-support:5.0.4.RELEASE'
+
+    compile 'org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf:2.0.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-security:2.0.4.RELEASE'
+
+    compile 'org.springframework.boot:spring-boot-starter-actuator:2.0.4.RELEASE'
+    compile 'io.micrometer:micrometer-registry-prometheus:1.0.2'
+
+    compile 'io.springfox:springfox-swagger2:2.8.0'
+    compile 'io.springfox:springfox-swagger-ui:2.8.0'
+}
+
+apply plugin: 'war'
+apply plugin: 'org.springframework.boot'
+
+task buildDockerImage (dependsOn: build) {
+    doLast {
+        exec {
+            commandLine "docker", "image", "build", "--iidfile", "../.iid", "-t", "jassistant", "."
+        }
+    }
+}

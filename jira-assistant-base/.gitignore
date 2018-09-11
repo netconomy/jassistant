@@ -1,0 +1,17 @@
+/bin/
+build/**
+bin/**
+out/**
+.metadata/*
+.settings/*
+.gradle/*
+.classpath
+.project
+.idea
+*.iml
+*.ipr
+*.iws
+*.log
+*.csv
+*.class
+JiraAssistant.properties

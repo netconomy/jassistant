@@ -1,0 +1,4 @@
+dependencies {
+	compile project(':jira-assistant-base')
+	compile project(':jira-assistant-sprintanalysis')
+}

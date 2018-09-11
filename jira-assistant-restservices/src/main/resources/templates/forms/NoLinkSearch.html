@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <title>JASSISTANT - No-link search</title>
+</head>
+<body>
+<section>
+    <h1>No-link search</h1>
+
+    <form method="get" action="/">
+       <div class="row">
+          <div class="col-sm-6 leftCol">
+             <h3>Project 1</h3>
+             <div class="form-group required">
+                <label class="control-label" for="input_project_1">Name</label>
+                <input class="form-control" id="input_project_1" name="input_project_1" type="text" maxlength="255" required/>
+                <p class="help-block">Please specify the short name of the first project for the link search.</p>
+             </div>
+             <div class="row">
+                <div class="col-xs-9">
+                   <div class="form-group">
+                      <label class="control-label" for="input_issue_types_project_1">Issue types</label>
+                      <input class="form-control" id="input_issue_types_project_1" name="input_issue_types_project_1" type="text" maxlength="255"/>
+                      <p class="help-block">Please state the issue types that should be looked at in project 1 during the search, separated by ','.<br/>e.g.: Arbeitspaket,Defect.</p>
+                   </div>
+                </div>
+                <div class="col-xs-3">
+                   <div class="form-group">
+                      <label class="control-label" for="input_negate_issue_types_project_1">Negate</label>
+                      <div class="checkbox">
+                         <label>
+                            <input id="input_negate_issue_types_project_1" name="input_negate_issue_types_project_1" type="checkbox"/>
+                         </label>
+                      </div>
+                      <p class="help-block">Negate the specified issue types ("Everything but this").</p>
+                   </div>
+                </div>
+             </div>
+             <div class="row">
+                <div class="col-xs-9">
+                   <div class="form-group">
+                      <label class="control-label" for="input_status_project_1">Status</label>
+                      <input class="form-control" id="input_status_project_1" name="input_status_project_1" type="text" maxlength="255"/>
+                      <p class="help-block">Please state the issue status that should be looked at in project 1 during the search, separated by ','.<br/>e.g.: Open,In Preparation.</p>
+                   </div>
+                </div>
+                <div class="col-xs-3">
+                   <div class="form-group">
+                      <label class="control-label" for="input_negate_status_project_1">Negate</label>
+                      <div class="checkbox">
+                         <label>
+                            <input id="input_negate_status_project_1" name="input_negate_status_project_1" type="checkbox"/>
+                         </label>
+                      </div>
+                      <p class="help-block">Negate the specified issue status ("Everything but this").</p>
+                   </div>
+                </div>
+             </div>
+             <div class="form-group">
+                <label class="control-label" for="input_and_clause_project_1">And Clause</label>
+                <input class="form-control" id="input_and_clause_project_1" name="input_and_clause_project_1" type="text" maxlength="255"/>
+                <p class="help-block">Here you can add a clause that will be added to the search query with an AND.<br/>e.g.: timespent is not empty.</p>
+             </div>
+          </div>
+          <div class="col-sm-6">
+             <h3>Project 2</h3>
+             <div class="form-group required">
+                <label class="control-label" for="input_project_2">Name</label>
+                <input class="form-control" id="input_project_2" name="input_project_2" type="text" maxlength="255" required/>
+                <p class="help-block">Please specify the short name of the second project for the link search.</p>
+             </div>
+          </div>
+       </div>
+       <hr/>
+       <div class="row">
+          <div class="col-xs-12">
+             <div class="row">
+                <div class="col-xs-9">
+                   <div class="form-group">
+                      <label class="control-label" for="input_link_type">Link type</label>
+                      <input class="form-control" id="input_link_type" name="input_link_type" type="text" maxlength="255"/>
+                      <p class="help-block">Which link type should be searched for. e.g.: Blocks, Split, KTR, ...</p>
+                   </div>
+                </div>
+                <div class="col-xs-3">
+                   <div class="form-group">
+                      <label class="control-label" for="input_negate_link_type">Negate</label>
+                      <div class="checkbox">
+                         <label>
+                            <input id="input_negate_link_type" name="input_negate_link_type" type="checkbox"/>
+                         </label>
+                      </div>
+                      <p class="help-block">Negate the specified link type ("Everything but this").</p>
+                   </div>
+                </div>
+             </div>
+              <div class="form-group" th:replace="~{forms/fragments::output(downloadText='CSV file download')}"></div>
+             <div class="form-group">
+                <button class="button button--primary" id="button" type="submit">Send request</button>
+             </div>
+          </div>
+       </div>
+    </form>
+</section>
+<script type="text/javascript">
+   function reactivateButton() {
+        setTimeout(function(){document.getElementById('button').disabled = false;}, 10000);
+   }
+   (function() {
+        var form = document.getElementsByTagName('form')[0];
+
+        form.addEventListener('submit', function(evt) {
+
+            document.getElementById('button').disabled = true;
+
+            evt.preventDefault();
+
+            var baseUrl = form.getAttribute('action');
+            var outputType = document.getElementById('input_output_type').value;
+
+            var linkType = document.getElementById('input_link_type').value;
+            var negateLinkType = document.getElementById('input_negate_link_type').checked;
+
+            var projectName1 = document.getElementById('input_project_1').value;
+            var issueTypesProject1 = document.getElementById('input_issue_types_project_1').value;
+            var negateIssueTypesProject1 = document.getElementById('input_negate_issue_types_project_1').checked;
+            var statusProject1 = document.getElementById('input_status_project_1').value;
+            var negateStatusProject1 = document.getElementById('input_negate_status_project_1').checked;
+            var andClauseProject1 = document.getElementById('input_and_clause_project_1').value;
+
+            var projectName2 = document.getElementById('input_project_2').value;
+
+            var finalUrl = baseUrl + outputType + '/v1/noLinkSearch/' + projectName1 + '/' + projectName2 + '/';
+
+            var mapping = [
+                           {name: 'linkType', value: linkType},
+                           {name: 'negateLinkType', value: negateLinkType},
+                           {name: 'issueTypesP1', value: issueTypesProject1},
+                           {name: 'negateIssueTypesP1', value: negateIssueTypesProject1},
+                           {name: 'statusP1', value: statusProject1},
+                           {name: 'negateStatusP1', value: negateStatusProject1},
+                           {name: 'andClauseP1', value: andClauseProject1}
+                          ];
+
+            var easyUrl = mapping.filter(function(keyValue) {
+                return keyValue.value != null && keyValue.value !== '';
+            }).map(function(keyValue) {
+                return keyValue.name + "=" + keyValue.value;
+            }).join('&');
+
+            finalUrl = finalUrl + '?' + easyUrl;
+
+            reactivateButton();
+
+            window.open(finalUrl);
+
+        }, false);
+    })();
+</script>
+</body>
+</html>

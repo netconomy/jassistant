@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <title>JASSISTANT - Account progress</title>
+</head>
+<body>
+<section>
+    <h1>Account progress</h1>
+
+    <form method="get" action="/">
+        <div class="form-group required">
+           <label class="control-label" for="input_accountidentifiers">Account identifier(s)</label>
+           <input class="form-control" id="input_accountidentifiers" name="input_accountidentifiers" type="text" maxlength="255" required/>
+           <p class="help-block">Please provide the key(s) or ID(s) of the account(s) to analyse separated by ','.<br/>e.g.: 11861,11927</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="input_accountid_type">Account identifier type</label>
+            <select class="form-control" id="input_accountid_type" name="input_accountid_type">
+                <option value="byKey" selected="selected">Account key</option>
+                <option value="byId">Account ID</option>
+            </select>
+            <p class="help-block">Please specify the kind of identifier you've provided above.</p>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="input_and_clause">And clause</label>
+          <input class="form-control" id="input_and_clause" name="input_and_clause" type="text" maxlength="255"/>
+          <p class="help-block">Here you can add a clause that will be added to the search query with an AND.<br/>e.g.: type = Arbeitspaket)</p>
+        </div>
+        <div class="form-group" th:replace="~{forms/fragments::output(downloadText='JSON file download')}"></div>
+        <div class="form-group">
+            <button class="button button--primary" id="button" type="submit">Send request</button>
+        </div>
+    </form>
+</section>
+<script type="text/javascript">
+    function reactivateButton() {
+        setTimeout(function(){document.getElementById('button').disabled = false;}, 10000);
+    }
+    (function() {
+        var form = document.getElementsByTagName('form')[0];
+
+        form.addEventListener('submit', function(evt) {
+
+            document.getElementById('button').disabled = true;
+
+            evt.preventDefault();
+
+            var baseUrl = form.getAttribute('action');
+            var outputType = document.getElementById('input_output_type').value;
+            var selectorType = document.getElementById('input_accountid_type').value;
+            var accountIdentifiers = document.getElementById('input_accountidentifiers').value;
+            var andClause = document.getElementById('input_and_clause').value;
+            var finalUrl;
+
+            finalUrl = baseUrl + outputType + '/v1/accountProgress/' + selectorType + '/' + accountIdentifiers;
+
+            if (andClause != null && andClause != '') {
+                finalUrl = finalUrl + '/?andClause=' + andClause;
+            }
+
+            reactivateButton();
+
+            window.open(finalUrl);
+
+        }, false);
+    })();
+    </script>
+</body>
+</html>

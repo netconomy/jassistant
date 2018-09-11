@@ -1,0 +1,105 @@
+buildscript {
+	repositories {
+		mavenLocal()
+        mavenCentral()
+        jcenter()
+	}
+    dependencies {
+		classpath 'io.spring.gradle:dependency-management-plugin:1.0.4.RELEASE'
+		classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE'
+    }
+}
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	apply plugin: 'maven'
+	apply plugin: 'jacoco'
+	apply plugin: 'io.spring.dependency-management'
+
+	compileJava.options.encoding = 'utf-8'
+	compileTestJava.options.encoding = 'utf-8'
+
+	sourceCompatibility = 1.8
+
+	defaultTasks = ['clean']
+
+	repositories { 
+		mavenLocal()
+		mavenCentral()
+        jcenter()
+
+		maven {
+			url 'https://maven.atlassian.com/content/repositories/atlassian-public/'
+		}
+
+		maven {
+			url 'https://atlassianuseast1.jfrog.io/atlassianuseast1/atlassian-public-maven/'
+		}
+		
+		maven {
+			url 'http://repository.apache.org/snapshots/'
+		}
+
+	}
+
+	dependencies {
+		compile 'ch.qos.logback:logback-core:1.2.3'
+		compile 'ch.qos.logback:logback-classic:1.2.3'
+
+		testCompile 'junit:junit:4.12'
+		testCompile 'org.mockito:mockito-core:2.15.0'
+		testCompile 'org.kubek2k:springockito:1.0.9'
+		testCompile 'org.kubek2k:springockito-annotations:1.0.9'
+	}
+
+	task initSourceFolders { // add << before { to prevent executing during configuration phase
+		sourceSets*.java.srcDirs*.each { it.mkdirs() }
+		sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+	 }
+
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		classifier = 'sources'
+		from sourceSets.main.allSource
+	}
+
+	artifacts {
+		archives sourcesJar
+	}
+
+	configurations.all {
+		// check for updates every build
+		resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+	}
+
+	artifacts {
+		archives sourcesJar
+	}
+
+	configurations.all {
+		// check for updates every build
+		resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+	}
+}
+
+rootProject.task('docs') {
+    doLast {
+        exec {
+            commandLine 'docker', 'run', '-u', 'root', '--rm', '-v', "${rootProject.rootDir}:/home/python/project", '-w', '/home/python/project', 'keimlink/sphinx-doc:1.7.1', 'make', '-C', 'docs', 'html'
+        }
+    }
+}
+
+rootProject.task('runDebug') {
+	doLast {
+		exec {
+			commandLine 'gradle', ':jira-assistant-restservices:buildDockerImage'
+		}
+	}
+	doLast {
+		exec {
+			commandLine 'docker', 'run', '--rm', '-v', "${workingDir.getAbsolutePath()}/jassistant.properties:/usr/local/tomcat/conf/jassistant.properties", '-p', '8080:8080', '-p', '8000:8000', '-e', 'JPDA_ADDRESS=8000', '-e', 'JPDA_TRANSPORT=dt_socket', 'jassistant', 'catalina.sh', 'jpda', 'run'
+		}
+	}
+}

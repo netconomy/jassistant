@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <title>JASSISTANT - Multi-sprint analysis</title>
+</head>
+<body>
+<section>
+    
+    <h1>Multiple-sprint analysis</h1>
+
+    <form method="get" action="/">
+        <div class="form-group required">
+           <label class="control-label" for="input_sprintids">Sprint IDs</label>
+           <input class="form-control" id="input_sprintids" name="input_sprintids" type="text" maxlength="255" required/>
+           <p class="help-block">Please specify the sprint IDs for the sprints to analyse separated by ','.<br/>e.g.: 967,123,567</p>
+           <h4><span class="label label-warning">Every additional sprint adds to the calculation time so the number is limited by the configuration.</span></h4>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="input_relevant_projects">Relevant projects</label>
+            <input class="form-control" id="input_relevant_projects" name="input_relevant_projects" type="text" maxlength="255"/>
+            <p class="help-block">Please specify the short names of the projects that are relevant for this sprint separated by ','.<br/>e.g.: TST,PROJ</p>
+        </div>
+        <div class="form-group" th:replace="~{forms/fragments::output(downloadText='CSV file download')}"></div>
+        <div class="form-group">
+            <button class="button button--primary" id="button" type="submit">Send request</button>
+        </div>
+    </form>
+</section>
+<script type="text/javascript">
+    function reactivateButton() {
+        setTimeout(function(){document.getElementById('button').disabled = false;}, 10000);
+    }
+    (function() {
+        var form = document.getElementsByTagName('form')[0];
+
+        form.addEventListener('submit', function(evt) {
+
+            document.getElementById('button').disabled = true;
+
+            evt.preventDefault();
+
+            var baseUrl = form.getAttribute('action');
+            var outputType = document.getElementById('input_output_type').value;
+            var sprintIds = document.getElementById('input_sprintids').value;
+            var relevantProjects = document.getElementById('input_relevant_projects').value;
+            var finalUrl;
+
+            finalUrl = baseUrl + outputType + '/v1/multiSprintAnalysis/byId/?sprintIds=' + sprintIds;
+
+            if(relevantProjects != null && relevantProjects != '') {
+                finalUrl = finalUrl + '&relevantProjects=' + relevantProjects;
+            }
+
+            reactivateButton();
+
+            window.open(finalUrl);
+
+        }, false);
+    })();
+</script>
+</body>
+</html>

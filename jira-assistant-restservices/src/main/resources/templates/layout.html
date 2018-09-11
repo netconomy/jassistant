@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html th:fragment="layout (title, content, script)" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:replace="${title}">JASSISTANT</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}" />
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap-theme.min.css}" />
+
+    <link rel="stylesheet" th:href="@{/css/main_nc.css}" />
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <script type="text/javascript" th:src="@{/js/jquery/jquery-2.1.4.js}"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap/bootstrap.js}"></script>
+    <script type="text/javascript" th:src="@{/js/datepicker/bootstrap-datepicker.js}"></script>
+</head>
+<body>
+<body id="main_body">
+
+<header class="header header—wide">
+    <div class="container">
+        <div class="header__logo">
+            <a href="/">JASSISTANT</a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div th:replace="${content}"></div>
+</div>
+<div th:replace="${script}"></div>
+</body>
+
+</html>

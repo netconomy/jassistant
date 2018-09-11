@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <title>JASSISTANT - Sprint Analysis</title>
+</head>
+<body>
+<section>
+    <h1>Sprint Analysis</h1>
+
+    <form method="get" action="/">
+        <div class="form-group required">
+           <label class="control-label" for="input_sprintid">Sprint identifier</label>
+           <input class="form-control" id="input_sprintid" name="input_sprintid" type="text" maxlength="255" required/>
+           <p class="help-block">Please specify a sprint ID or sprint name to analyse.</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="input_sprintid_type">Sprint identifier type</label>
+            <select class="form-control" id="input_sprintid_type" name="input_sprintid_type">
+                <option value="byId" selected="selected">Sprint ID</option>
+                <option value="byName">Sprint name</option>
+            </select>
+            <p class="help-block">Please specify the kind of identifier you've provided above.</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="input_sprintid_type">Light analysis</label>
+            <div class="checkbox">
+                <label>
+                    <input id="input_light_analysis" name="input_light_analysis" type="checkbox" checked="checked"/>
+                </label>
+            </div>
+            <p class="help-block">The light analysis contains no further information about issues.</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label" for="input_relevant_projects">relevant Projects</label>
+            <input class="form-control" id="input_relevant_projects" name="input_relevant_projects" type="text" maxlength="255"/>
+            <p class="help-block">Please specify the short names of the projects that are relevant for this sprint, separated by ','.<br/>e.g.: TST,PROJ</p>
+        </div>
+        <div class="form-group" th:replace="~{forms/fragments::output(downloadText='JSON file download')}"></div>
+        <div class="form-group">
+            <button class="button button--primary" id="button" type="submit">Send request</button>
+        </div>
+    </form>
+</section>
+
+<script type="text/javascript">
+    function reactivateButton() {
+        setTimeout(function(){document.getElementById('button').disabled = false;}, 10000);
+    }
+    (function() {
+        var form = document.getElementsByTagName('form')[0];
+
+        form.addEventListener('submit', function(evt) {
+
+            document.getElementById('button').disabled = true;
+
+            evt.preventDefault();
+
+            var baseUrl = form.getAttribute('action');
+            var outputType = document.getElementById('input_output_type').value;
+            var selectorType = document.getElementById('input_sprintid_type').value;
+            var sprintId = document.getElementById('input_sprintid').value;
+            var lightAnalysis = document.getElementById('input_light_analysis').checked;
+            var relevantProjects = document.getElementById('input_relevant_projects').value;
+            var finalUrl;
+
+            finalUrl = baseUrl + outputType + '/v1/sprintAnalysis/' + selectorType + '/' + sprintId + '/?lightAnalysis=' + lightAnalysis;
+
+            if(relevantProjects != null && relevantProjects != '') {
+                finalUrl = finalUrl + '&relevantProjects=' + relevantProjects;
+            }
+
+            reactivateButton();
+
+            window.open(finalUrl);
+
+        }, false);
+    })();
+</script>
+</body>
+</html>

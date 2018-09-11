@@ -1,0 +1,51 @@
+div .leftCol {
+    border-right: 2px solid lightgrey;
+}
+
+div .rightCol {
+    border-left: 2px solid lightgrey;
+}
+
+hr {
+	border-top: 2px solid lightgrey;
+}
+
+.form-group.required .control-label:after { 
+   content:" *";
+   color:red;
+}
+
+.form-group-hidden {
+	display:none;
+}
+
+.form-control {
+	border-radius: 0;
+}
+
+.list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.list-group-item:last-child {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.header__logo img {
+	height: 22px;
+}
+
+.header__logo a {
+    text-align: left;
+}
+
+.header__logo {
+    padding-left: 0;
+}
+
+a.list-group-item:focus, a.list-group-item:hover {
+	background-color: #0084CA;
+	color: #FAFAFA;
+}

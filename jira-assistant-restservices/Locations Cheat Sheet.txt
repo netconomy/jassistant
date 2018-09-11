@@ -1,0 +1,14 @@
+Config		/etc/tomcat7
+Log		/var/log/tomcat7
+Webapps		/var/lib/tomcat7/webapps
+Start und Stop	/usr/share/tomcat7/bin
+
+service tomcat7 start
+		stop
+		restart
+
+ausführen von Shellscripts per ./.....
+
+Since Docker
+Config		/etc/jassistant
+Log		/var/log/jassistant

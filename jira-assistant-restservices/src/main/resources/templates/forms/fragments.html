@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="form-group" th:fragment="output(downloadText)">
+    <label class="control-label" for="input_output_type">Output format</label>
+    <select class="form-control" id="input_output_type" name="input_output_type">
+        <option value="api" selected="selected">Plain JSON</option>
+        <option value="download" th:text="${downloadText}"></option>
+    </select>
+    <p class="help-block">Please state which output format you want.</p>
+</div>
+</body>
+</html>

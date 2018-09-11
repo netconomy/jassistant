@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+    <title>JASSISTANT - Project status</title>
+</head>
+<body>
+<section>
+    <h1>Project status</h1>
+
+    <form method="get" action="/">
+        <div class="form-group required">
+           <label class="control-label" for="input_projects">Projects</label>
+           <input class="form-control" id="input_projects" name="input_projects" type="text" maxlength="255" required/>
+           <p class="help-block">Please specify the short names of the projects you want to analyze, separated by ','.<br/>e.g.: TST,PROJ.</p>
+        </div>
+        <div class="form-group">
+           <label class="control-label" for="input_group_by">Group by</label>
+           <input class="form-control" id="input_group_by" name="input_group_by" type="text" maxlength="255"/>
+           <p class="help-block">You can give a JIRA field name by which the issues of the analysis will be grouped.<br/>
+           Not every field is possible, for example fix version is not.<br/>e.g.: Epic Link.</p>
+        </div>
+        <div class="form-group">
+           <label class="control-label" for="input_excluded_types">Exclude issue types</label>
+           <input class="form-control" id="input_excluded_types" name="input_excluded_types" type="text" maxlength="255"/>
+           <p class="help-block">You can define which issue types to exclude from the analysis, separated by ','.<br/>e.g.: Defect,Test.</p>
+        </div>
+        <div class="form-group">
+          <label class="control-label" for="input_and_clause">And cause</label>
+          <input class="form-control" id="input_and_clause" name="input_and_clause" type="text" maxlength="255"/>
+          <p class="help-block">Here you can add a clause that will be added to the search query with an AND.<br/>e.g.: stream in (MidTerm, EMPTY).</p>
+        </div>
+        <div class="form-group" th:replace="~{forms/fragments::output(downloadText='CSV file download')}"></div>
+        <div class="form-group">
+           <button class="button button--primary" id="button" type="submit">Send request</button>
+        </div>
+    </form>
+</section>
+<script type="text/javascript">
+   function reactivateButton() {
+       setTimeout(function(){document.getElementById('button').disabled = false;}, 10000);
+   }
+   (function() {
+        var form = document.getElementsByTagName('form')[0];
+
+        form.addEventListener('submit', function(evt) {
+
+            document.getElementById('button').disabled = true;
+
+            evt.preventDefault();
+
+            var baseUrl = form.getAttribute('action');
+            var outputType = document.getElementById('input_output_type').value;
+            var projects = document.getElementById('input_projects').value;
+            var groupBy = document.getElementById('input_group_by').value;
+            var exclTypes = document.getElementById('input_excluded_types').value;
+            var andClause = document.getElementById('input_and_clause').value;
+            var finalUrl;
+
+            finalUrl = baseUrl + outputType + '/v1/projectStatus/' + projects + '/';
+
+            if(!!groupBy) {
+                finalUrl = finalUrl + '?groupBy=' + groupBy;
+            }
+
+            if(!!exclTypes) {
+
+                if(!groupBy) {
+                    finalUrl = finalUrl + '?';
+                } else {
+                    finalUrl = finalUrl + '&';
+                }
+
+                finalUrl = finalUrl + 'excludedTypes=' + exclTypes;
+            }
+
+            if(!!andClause) {
+
+                if(!groupBy && !exclTypes) {
+                    finalUrl = finalUrl + '?';
+                } else {
+                    finalUrl = finalUrl + '&';
+                }
+
+                finalUrl = finalUrl + 'andClause=' + andClause;
+            }
+
+            reactivateButton();
+
+            window.open(finalUrl);
+
+        }, false);
+    })();
+</script>
+</body>
+</html>

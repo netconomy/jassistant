@@ -1,0 +1,15 @@
+rootProject.name="jira-assistant"
+
+include 'jira-assistant-base'
+include 'jira-assistant-accountprogress'
+include 'jira-assistant-billing'
+include 'jira-assistant-estimationstatistics'
+include 'jira-assistant-kanbananalysis'
+include 'jira-assistant-linksearch'
+include 'jira-assistant-projectsetup'
+include 'jira-assistant-projectstatus'
+include 'jira-assistant-reopenfactor'
+include 'jira-assistant-restservices'
+include 'jira-assistant-sprintanalysis'
+include 'jira-assistant-sprintforecast'
+include 'jira-assistant-supportanalysis'

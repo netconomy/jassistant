@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>JASSISTANT - Error</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap.min.css}" />
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" th:href="@{/css/bootstrap/bootstrap-theme.min.css}" />
+
+	<link rel="stylesheet" th:href="@{/css/main_nc.css}" />
+	<link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+
+<body id="main_body">
+
+	<header class="header header—wide">
+	    <div class="container">
+	        <div class="header__logo">
+				<a th:href="@{/index.html}">JASSISTANT</a>
+	        </div>
+	    </div>
+	</header>
+
+	<div class="container">
+
+		<h1 th:text="|${status} - ${error}|">400</h1>
+
+		<p>The following error occurred during your analysis: </p>
+
+		<p th:text="${message}"><b>Error message</b></p>
+
+		<p>Please try to execute your analysis again with different input or go back to the <a th:href="@{/index.html}">start page.</a></p>
+
+	</div>
+
+</body>
+
+</html>

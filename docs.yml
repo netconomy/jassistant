@@ -1,0 +1,10 @@
+README.md:
+  type: markdown
+  label: README
+CHANGELOG.md:
+  type: markdown
+  label: CHANGELOG
+docs:
+  label: User Documentation
+  type: sphinx
+  source: .

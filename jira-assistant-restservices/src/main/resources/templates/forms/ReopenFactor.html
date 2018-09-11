@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::title}, ~{::section}, ~{::script})}">
+<head>
+	<title>JASSISTANT - Reopen factor</title>
+</head>
+<body>
+<section>
+	
+	<h1>Reopen factor</h1>
+
+	<form method="get" action="/">
+		<div class="form-group required">
+		   <label class="control-label" for="input_projects">Projects</label>
+		   <input class="form-control" id="input_projects" name="input_projects" type="text" maxlength="255" required/>
+		   <p class="help-block">Please specify the short names of the projects you want to analyze, separated by ','.<br/>e.g.: TST,PROJ.</p>
+		</div>
+		<div class="form-group required">
+		   <label class="control-label">Start date</label>
+		   <div class="form-group">
+			  <input class="form-control datepicker" id="input_start_date" name="input_start_date" placeholder="yyyy-mm-dd" required/>
+		   </div>
+		   <p class="help-block">Please specify the first day of the time window to analyze.</p>
+		</div>
+		<div class="form-group required">
+		   <label class="control-label">End date</label>
+		   <div class="form-group">
+			  <input class="form-control datepicker" id="input_end_date" name="input_end_date" placeholder="yyyy-mm-dd" required/>
+		   </div>
+		   <p class="help-block">Please specify the last Day of the time window to analyze.</p>
+		</div>
+		<div class="form-group">
+		  <label class="control-label" for="input_and_clause">And Clause</label>
+		  <input class="form-control" id="input_and_clause" name="input_and_clause" type="text" maxlength="255"/>
+		  <p class="help-block">Here you can add a clause that will be added to the search query with an AND.<br/>e.g.: type not in ('Epic','Tempo')</p>
+		</div>
+		<div class="form-group">
+		   <label class="control-label" for="input_threshold">Threshold</label>
+		   <input class="form-control" id="input_threshold" name="input_threshold" type="number" maxlength="255" value="2"/>
+		   <p class="help-block">Issues with this number of reopens will be stated as distortions.</p>
+		</div>
+		<div class="form-group" th:replace="~{forms/fragments::output(downloadText='JSON file download')}"></div>
+		<div class="form-group">
+		   <button class="button button--primary" id="button" type="submit">Send request</button>
+		</div>
+	</form>
+</section>
+<script type="text/javascript">
+   $('.datepicker').datepicker({
+	   format: 'yyyy-mm-dd',
+	   todayBtn: 'linked',
+	   todayHighlight: true,
+	   autoclose: true,
+	   weekStart: 1
+   })
+   function reactivateButton() {
+	   setTimeout(function(){document.getElementById('button').disabled = false;}, 10000);
+   }
+   (function() {
+		var form = document.getElementsByTagName('form')[0];
+
+		form.addEventListener('submit', function(evt) {
+
+			document.getElementById('button').disabled = true;
+
+			evt.preventDefault();
+
+			var baseUrl = form.getAttribute('action');
+			var outputType = document.getElementById('input_output_type').value;
+			var projects = document.getElementById('input_projects').value;
+			var startDate = document.getElementById('input_start_date').value;
+			var endDate = document.getElementById('input_end_date').value;
+			var andClause = document.getElementById('input_and_clause').value;
+			var threshold = document.getElementById('input_threshold').value;
+			var finalUrl;
+
+			finalUrl = baseUrl + outputType + '/v1/reopenFactor/' + projects + '/'
+					+ '?startDate=' + startDate + '&endDate=' + endDate;
+
+			if(andClause != null && andClause != '') {
+				finalUrl = finalUrl + '&andClause=' + andClause;
+			}
+
+			if(threshold != null && threshold != '') {
+				finalUrl = finalUrl + '&threshold=' + threshold;
+			}
+
+			reactivateButton();
+
+			window.open(finalUrl);
+
+		}, false);
+	})();
+</script>
+</body>
+</html>
