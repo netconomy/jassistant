@@ -178,6 +178,13 @@ public class SprintAnalysisDataService {
 
     }
 
+    public String getMultipleSprintAnalysisJSON(String sprintIdentifiers, String relevantProjects)
+            throws ConfigurationException {
+
+        MultipleSprintAnalysisData multipleSprintAnalysisData = getMultipleSprintAnalysis(sprintIdentifiers, relevantProjects);
+        return jsonAnswerWrapper.wrapObjectForJSONOutput(multipleSprintAnalysisData);
+    }
+
     public String getSprintAnalysisDummy() {
 
         SprintResultData sprintResultDataDummy = new SprintResultData();
