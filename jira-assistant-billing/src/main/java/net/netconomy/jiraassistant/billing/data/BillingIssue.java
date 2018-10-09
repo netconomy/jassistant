@@ -25,15 +25,11 @@ import net.netconomy.jiraassistant.base.data.SingleTimeMetric;
 
 public class BillingIssue extends IssueLight {
 	
-    private String priority = "";
     private List<String> components = new ArrayList<>();
     private String reporter = "";
 
     private String epicKey = "";
     private String epicName = "";
-
-    private String accountKey = "";
-    private String accountName = "";
 
     private List<String> linkedIssuesKeysToList = new ArrayList<>();
 
@@ -108,22 +104,6 @@ public class BillingIssue extends IssueLight {
         this.personDaysEstimated = personDaysEstimated;
     }
 
-    public String getAccountKey() {
-        return accountKey;
-    }
-
-    public void setAccountKey(String accountKey) {
-        this.accountKey = accountKey;
-    }
-
-    public String getAccountName() {
-        return accountName;
-    }
-
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
-    }
-
     public String getEpicKey() {
         return epicKey;
     }
@@ -146,16 +126,6 @@ public class BillingIssue extends IssueLight {
 
     public void setLinkedIssuesKeysToList(List<String> linkedIssuesKeysToList) {
         this.linkedIssuesKeysToList = linkedIssuesKeysToList;
-    }
-
-    @Override
-    public String getPriority() {
-        return priority;
-    }
-
-    @Override
-    public void setPriority(String priority) {
-        this.priority = priority;
     }
 
     public List<String> getComponents() {
@@ -209,13 +179,13 @@ public class BillingIssue extends IssueLight {
     @Override
     public String toString() {
         return "BillingIssue{" +
-                "priority='" + priority + '\'' +
+                "priority='" + this.getPriority() + '\'' +
                 ", components=" + components +
                 ", reporter='" + reporter + '\'' +
                 ", epicKey='" + epicKey + '\'' +
                 ", epicName='" + epicName + '\'' +
-                ", accountKey='" + accountKey + '\'' +
-                ", accountName='" + accountName + '\'' +
+                ", accountKey='" + this.getAccountKey() + '\'' +
+                ", accountName='" + this.getAccountName() + '\'' +
                 ", linkedIssuesKeysToList=" + linkedIssuesKeysToList +
                 ", bookedTimeInTimeFrameMinutes=" + bookedTimeInTimeFrameMinutes +
                 ", originalEstimateMinutes=" + originalEstimateMinutes +
