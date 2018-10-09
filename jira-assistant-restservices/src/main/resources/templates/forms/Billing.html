@@ -4,92 +4,94 @@
     <title>JASSISTANT - Billing</title>
 </head>
 <body>
-<section>
-	
-	    <h1>Billing</h1>
+    <section>
+        <div>
+            <h1>Billing</h1>
 
-        <form method="get" action="/">
-	       <div class="form-group required">
-              <label class="control-label" for="input_identifiers">Identifier(s)</label>
-              <input class="form-control" id="input_identifiers" name="input_identifiers" type="text" maxlength="255" required/> 
-              <p class="help-block">Please specify the key(s) for the project or accounts to analyse separated by ','.</p>
-           </div>
-           <div class="form-group">
-               <label class="control-label" for="input_id_type">Identifier type</label>
-               <select class="form-control" id="input_id_type" name="input_id_type"> 
-                   <option value="byProjects" selected="selected">Projects</option>
-                   <option value="byAccounts">Accounts</option>
-               </select>
-               <p class="help-block">Please specify the kind of identifier you've provided above.</p>
-           </div>
-           <div class="form-group required">
-                <label class="control-label" for="input_date_format">Date format</label>
-                <select class="form-control" id="input_date_format" name="input_date_format" required> 
-                    <option value="byMonth" selected="selected">Month</option>
-                    <option value="byDates">Start and end date</option>
-                </select>
-                <p class="help-block">Please state how you what to define the timeframe.</p>
-            </div>
-           <div class="form-group required">
-              <label class="control-label">Month</label>
-              <div class="form-group">
-                  <input class="form-control datepicker-month" id="input_month" name="input_month" placeholder="yyyy-mm" required/>
+            <form method="get" action="/">
+               <div class="form-group required">
+                  <label class="control-label" for="input_identifiers">Identifier(s)</label>
+                  <input class="form-control" id="input_identifiers" name="input_identifiers" type="text" maxlength="255" required/>
+                  <p class="help-block">Please specify the key(s) for the project or accounts to analyse separated by ','.</p>
                </div>
-              <p class="help-block">Please specify the month to analyze.</p>
-           </div>
-           <div class="form-group-hidden">
-              <label class="control-label">Start Date</label>
-              <div class="form-group">
-                  <input class="form-control datepicker" id="input_start_date" name="input_start_date" placeholder="yyyy-mm-dd"/>
+               <div class="form-group">
+                   <label class="control-label" for="input_id_type">Identifier type</label>
+                   <select class="form-control" id="input_id_type" name="input_id_type">
+                       <option value="byProjects" selected="selected">Projects</option>
+                       <option value="byAccounts">Accounts</option>
+                   </select>
+                   <p class="help-block">Please specify the kind of identifier you've provided above.</p>
                </div>
-              <p class="help-block">Please specify the first day of the time window to analyze.</p>
-           </div>
-           <div class="form-group-hidden">
-              <label class="control-label">End Date</label>
-              <div class="form-group">
-                  <input class="form-control datepicker" id="input_end_date" name="input_end_date" placeholder="yyyy-mm-dd"/>
+               <div class="form-group required">
+                    <label class="control-label" for="input_date_format">Date format</label>
+                    <select class="form-control" id="input_date_format" name="input_date_format" required>
+                        <option value="byMonth" selected="selected">Month</option>
+                        <option value="byDates">Start and end date</option>
+                    </select>
+                    <p class="help-block">Please state how you what to define the timeframe.</p>
+                </div>
+               <div class="form-group required">
+                  <label class="control-label">Month</label>
+                  <div class="form-group">
+                      <input class="form-control datepicker-month" id="input_month" name="input_month" placeholder="yyyy-mm" required/>
+                   </div>
+                  <p class="help-block">Please specify the month to analyze.</p>
                </div>
-              <p class="help-block">Please specify the last day of the time window to analyze. This day will not be included in the analysis.</p>
-           </div>
-		   <div class="form-group required">
-              <label class="control-label" for="input_hours_in_a_person_day">Hours in a person-day</label>
-              <input class="form-control" id="input_hours_in_a_person_day" name="input_hours_in_a_person_day" type="text" maxlength="255" value="8" required/>
-              <p class="help-block">Please specify the number of hours in a person-day for your project.<br/>e.g.: 7.7 or 8</p>
-           </div>
-           <div class="form-group">
-              <label class="control-label" for="input_issue_types">Issue types</label>
-              <input class="form-control" id="input_issue_types" name="input_issue_types" type="text" maxlength="255"/>
-              <p class="help-block">If you want to exclusively get certain issue types provide them here, separated by ','.<br/>e.g.: Arbeitspaket,Defect</p>
-           </div>
-           <div class="form-group">
-              <label class="control-label" for="input_and_clause">And clause</label>
-              <input class="form-control" id="input_and_clause" name="input_and_clause" type="text" maxlength="255"/>
-              <p class="help-block">Here you can add a clause that will be added to the search query with an AND.<br/>e.g.: "'Story Points' = 2"</p>
-           </div>
-           <div class="form-group">
-               <label class="control-label" for="input_additional_fields">Additional fields</label>
-               <input class="form-control" id="input_additional_fields" name="input_additional_fields" type="text" maxlength="255"/>
-               <p class="help-block">
-                   If you want to add fields to your billing sheet give their names here, separated by ','.<br/>
-                   If the field does not use a simple JSON Object with value or JSON array containing JSON objects with value, data structure, the whole JSON will be put into your sheet.
-               </p>
-           </div>
-           <div class="form-group">
-              <label class="control-label" for="input_links_to_list">Issue links to list</label>
-              <input class="form-control" id="input_links_to_list" name="input_links_to_list" type="text" maxlength="255"/>
-              <p class="help-block">If there are special projects where you want the links listed, provide the project Keys here, separated by ','.</p>
-           </div>
-           <div class="form-group">
-              <label class="control-label" for="input_additional_accounts">Additional accounts</label>
-              <input class="form-control" id="input_additional_accounts" name="input_additional_accounts" type="text" maxlength="255"/>
-              <p class="help-block">If you want to add accounts give the account keys here, separated by ','.<br/>e.g.: 11861,11927</p>
-           </div>
-            <div class="form-group" th:replace="~{forms/fragments::output(downloadText='CSV file download')}"></div>
-           <div class="form-group">
-              <button class="button button--primary" id="button" type="submit">Send request</button>
-           </div>
-		</form>
-	</div>
+               <div class="form-group-hidden">
+                  <label class="control-label">Start Date</label>
+                  <div class="form-group">
+                      <input class="form-control datepicker" id="input_start_date" name="input_start_date" placeholder="yyyy-mm-dd"/>
+                   </div>
+                  <p class="help-block">Please specify the first day of the time window to analyze.</p>
+               </div>
+               <div class="form-group-hidden">
+                  <label class="control-label">End Date</label>
+                  <div class="form-group">
+                      <input class="form-control datepicker" id="input_end_date" name="input_end_date" placeholder="yyyy-mm-dd"/>
+                   </div>
+                  <p class="help-block">Please specify the last day of the time window to analyze. This day will not be included in the analysis.</p>
+               </div>
+               <div class="form-group required">
+                  <label class="control-label" for="input_hours_in_a_person_day">Hours in a person-day</label>
+                  <input class="form-control" id="input_hours_in_a_person_day" name="input_hours_in_a_person_day" type="text" maxlength="255" value="8" required/>
+                  <p class="help-block">Please specify the number of hours in a person-day for your project.<br/>e.g.: 7.7 or 8</p>
+               </div>
+               <div class="form-group">
+                  <label class="control-label" for="input_issue_types">Issue types</label>
+                  <input class="form-control" id="input_issue_types" name="input_issue_types" type="text" maxlength="255"/>
+                  <p class="help-block">If you want to exclusively get certain issue types provide them here, separated by ','.<br/>e.g.: Arbeitspaket,Defect</p>
+               </div>
+               <div class="form-group">
+                  <label class="control-label" for="input_and_clause">And clause</label>
+                  <input class="form-control" id="input_and_clause" name="input_and_clause" type="text" maxlength="255"/>
+                  <p class="help-block">Here you can add a clause that will be added to the search query with an AND.<br/>e.g.: "'Story Points' = 2"</p>
+               </div>
+               <div class="form-group">
+                   <label class="control-label" for="input_additional_fields">Additional fields</label>
+                   <input class="form-control" id="input_additional_fields" name="input_additional_fields" type="text" maxlength="255"/>
+                   <p class="help-block">
+                       If you want to add fields to your billing sheet give their names here, separated by ','.<br/>
+                       If the field does not use a simple JSON Object with value or JSON array containing JSON objects with value, data structure, the whole JSON will be put into your sheet.
+                   </p>
+               </div>
+               <div class="form-group">
+                  <label class="control-label" for="input_links_to_list">Issue links to list</label>
+                  <input class="form-control" id="input_links_to_list" name="input_links_to_list" type="text" maxlength="255"/>
+                  <p class="help-block">If there are special projects where you want the links listed, provide the project Keys here, separated by ','.</p>
+               </div>
+               <div class="form-group">
+                  <label class="control-label" for="input_additional_accounts">Additional accounts</label>
+                  <input class="form-control" id="input_additional_accounts" name="input_additional_accounts" type="text" maxlength="255"/>
+                  <p class="help-block">If you want to add accounts give the account keys here, separated by ','.<br/>e.g.: 11861,11927</p>
+               </div>
+                <div class="form-group" th:replace="~{forms/fragments::output(downloadText='CSV file download')}"></div>
+               <div class="form-group">
+                  <button class="button button--primary" id="button" type="submit">Send request</button>
+               </div>
+            </form>
+        </div>
+    </section>
+
     <script type="text/javascript">
 	   $('.datepicker').datepicker({
 		   format: 'yyyy-mm-dd',
@@ -220,6 +222,5 @@
 	        }, false);
         })();
     </script>
-</section>
 </body>
 </html>
