@@ -349,6 +349,7 @@ public class SprintService {
      * 
      * @param credentials
      * @param sprintDataDelta
+     * @param issueFilter allows filtering of issues
      */
     void addIssueKeysAddedToAgileSprint(ClientCredentials credentials, SprintDataDelta sprintDataDelta, IssueFilter issueFilter) {
 
@@ -396,6 +397,7 @@ public class SprintService {
      * 
      * @param credentials
      * @param sprintDataDelta
+     * @param issueFilter allows filtering of issues
      */
     void addIssuesRemovedFromAgileSprint(ClientCredentials credentials, SprintDataDelta sprintDataDelta, IssueFilter issueFilter) {
 
@@ -462,6 +464,7 @@ public class SprintService {
      * 
      * @param sprintData
      * @param sprintDataDelta
+     * @param issueFilter allows filtering of issues
      */
     void correctIssuesRemovedFromSprint(SprintDataFull sprintData, SprintDataDelta sprintDataDelta, IssueFilter issueFilter) {
         
@@ -503,6 +506,7 @@ public class SprintService {
      * @param sprintData
      *            has to be Sprint Data with
      * @param estimationFieldName
+     * @param issueFilter allows filtering of issues
      * @return
      */
     public SprintDataDelta getSprintDataDelta(ClientCredentials credentials, SprintDataFull sprintData,
@@ -547,6 +551,7 @@ public class SprintService {
      * @param sprintIdentifier
      * @param idenentifiedByID
      * @param estimationFieldName
+     * @param issueFilter allows filtering of issues
      * @return SprintDataDelta or null if the Sprint was not found or was empty
      */
     @Nullable

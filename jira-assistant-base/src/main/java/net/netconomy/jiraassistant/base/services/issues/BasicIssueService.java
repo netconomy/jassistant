@@ -93,18 +93,10 @@ public class BasicIssueService {
             return issueMap;
         }
 
-        String changeLogString;
-
         try (JiraRestClient client = clientFactory.create(credentials);) {
 
             if (LOGGER.isInfoEnabled()) {
-                if (withChangelog) {
-                    changeLogString = "with changelog";
-                } else {
-                    changeLogString = "without changelog";
-                }
-
-                LOGGER.info("Retrieving {} issues from Jira {}.", issueKeyList.size(), changeLogString);
+                LOGGER.info("Retrieving {} issues from Jira {}.", issueKeyList.size(), withChangelog ? "with changelog" : "without changelog");
             }
 
             for (String currentKey : issueKeyList) {

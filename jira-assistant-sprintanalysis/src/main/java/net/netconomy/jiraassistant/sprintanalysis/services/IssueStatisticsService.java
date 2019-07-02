@@ -95,6 +95,7 @@ public class IssueStatisticsService {
      *            Sprint.
      * @param sprintDataDelta
      * @param credentials
+     * @param filter allows filtering of issues
      * @return
      * @throws ConfigurationException
      */
@@ -218,9 +219,9 @@ public class IssueStatisticsService {
      * 
      * @param issues
      * @param subIssues
-     * @param configuration
      * @param startDate
      * @param endDate
+     * @param issueFilter allows filtering of issues
      * @return
      * @throws ConfigurationException
      */
