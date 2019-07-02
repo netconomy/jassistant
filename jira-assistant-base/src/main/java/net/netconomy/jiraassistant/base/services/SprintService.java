@@ -40,6 +40,7 @@ import net.netconomy.jiraassistant.base.data.sprint.SprintDataFull;
 import net.netconomy.jiraassistant.base.data.sprint.SprintDataLight;
 import net.netconomy.jiraassistant.base.jirafunctions.JiraSearch;
 import net.netconomy.jiraassistant.base.restclient.JiraAgileRestService;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
 import net.netconomy.jiraassistant.base.services.issues.AdvancedIssueService;
 import net.netconomy.jiraassistant.base.services.issues.BasicIssueService;
 
@@ -271,7 +272,7 @@ public class SprintService {
         sprintIssueKeys = search.searchJiraGetAllKeys(credentials, jqlQuery);
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Retrieving Data for {} Issues.", sprintIssueKeys.size());
+            LOGGER.info("Retrieving data of {} issues.", sprintIssueKeys.size());
         }
 
         basicSprintData = getSprintMetaData(credentials, sprintIdentifier, idenentifiedByID);
@@ -298,13 +299,13 @@ public class SprintService {
      * @param wantedFields
      * @return
      */
-    public SprintDataLight getSprintDataLight(SprintDataFull sprintDataFull, List<String> wantedFields) {
+    public SprintDataLight getSprintDataLight(SprintDataFull sprintDataFull, List<String> wantedFields, List<Issue> issues) {
 
         SprintDataLight sprintDataLight = new SprintDataLight(sprintDataFull);
 
         sprintDataLight.setWantedFields(wantedFields);
 
-        for (Issue currentIssue : sprintDataFull.getIssueList()) {
+        for (Issue currentIssue : issues) {
 
             sprintDataLight.addLightIssue(advancedIssueService.getIssueLight(currentIssue, wantedFields));
 
@@ -329,14 +330,14 @@ public class SprintService {
      */
     @Nullable
     public SprintDataLight getLightSprintData(ClientCredentials credentials, String sprintIdentifier,
-            Boolean idenentifiedByID, List<String> wantedFields) {
+            Boolean idenentifiedByID, List<String> wantedFields, List<Issue> issues) {
 
         SprintDataFull sprintDataFull;
 
         sprintDataFull = getFullSprintData(credentials, sprintIdentifier, idenentifiedByID, false);
 
         if (sprintDataFull != null) {
-            return getSprintDataLight(sprintDataFull, wantedFields);
+            return getSprintDataLight(sprintDataFull, wantedFields, issues);
         } else {
             return null;
         }
@@ -349,7 +350,7 @@ public class SprintService {
      * @param credentials
      * @param sprintDataDelta
      */
-    void addIssueKeysAddedToAgileSprint(ClientCredentials credentials, SprintDataDelta sprintDataDelta) {
+    void addIssueKeysAddedToAgileSprint(ClientCredentials credentials, SprintDataDelta sprintDataDelta, IssueFilter issueFilter) {
 
         JSONObject sprintReport;
         JSONObject contentsJson;
@@ -371,8 +372,10 @@ public class SprintService {
             keyIterator = addedIssueKeysJson.keys();
 
             while (keyIterator.hasNext()) {
-
                 currentKey = keyIterator.next().toString();
+                if (!this.basicIssueService.isIncluded(currentKey, issueFilter)) {
+                    continue;
+                }
 
                 sprintDataDelta.addIssueKeyToAddedIssues(currentKey);
 
@@ -394,7 +397,7 @@ public class SprintService {
      * @param credentials
      * @param sprintDataDelta
      */
-    void addIssuesRemovedFromAgileSprint(ClientCredentials credentials, SprintDataDelta sprintDataDelta) {
+    void addIssuesRemovedFromAgileSprint(ClientCredentials credentials, SprintDataDelta sprintDataDelta, IssueFilter issueFilter) {
 
         JSONObject sprintReport;
         JSONObject contentsJson;
@@ -415,8 +418,11 @@ public class SprintService {
             for (int i = 0; i < removedIssuesJson.length(); i++) {
 
                 currentIssueJson = removedIssuesJson.getJSONObject(i);
-
-                removedIssueKeys.add(currentIssueJson.getString("key"));
+                String key = currentIssueJson.getString("key");
+                if (!this.basicIssueService.isIncluded(key, issueFilter)) {
+                    continue;
+                }
+                removedIssueKeys.add(key);
 
                 issueCount++;
 
@@ -457,12 +463,15 @@ public class SprintService {
      * @param sprintData
      * @param sprintDataDelta
      */
-    void correctIssuesRemovedFromSprint(SprintDataFull sprintData, SprintDataDelta sprintDataDelta) {
+    void correctIssuesRemovedFromSprint(SprintDataFull sprintData, SprintDataDelta sprintDataDelta, IssueFilter issueFilter) {
         
         Issue currentIssue;
         List<String> removedKeysCorrect = new ArrayList<>();
         
         for (String currentKey : sprintDataDelta.getRemovedIssueKeys()) {
+            if (!this.basicIssueService.isIncluded(currentKey, issueFilter)) {
+                continue;
+            }
             
             currentIssue = sprintData.getIssueByKey(currentKey);
             
@@ -486,9 +495,9 @@ public class SprintService {
     }
 
     /**
-     * This Function creates a SprintDataDelta with all Sprint Meta Information from the SprintDataFull. The
-     * SprintDataDelta will contain a List of IssueKeys of Issues that were added or removed after the Sprint was
-     * started. It contains no Issue Information of added Issues.
+     * This function creates a SprintDataDelta with all meta information about a sprint from the SprintDataFull. The
+     * SprintDataDelta will contain a list of keys of issues that were added or removed after the sprint was
+     * started. It contains no issue information of added issues.
      * 
      * @param credentials
      * @param sprintData
@@ -497,7 +506,7 @@ public class SprintService {
      * @return
      */
     public SprintDataDelta getSprintDataDelta(ClientCredentials credentials, SprintDataFull sprintData,
-            String estimationFieldName) {
+            String estimationFieldName, IssueFilter issueFilter) {
 
         SprintDataDelta sprintDataDelta;
 
@@ -514,11 +523,11 @@ public class SprintService {
             LOGGER.info("Trying to retrieve Sprint Delta Data for Sprint {} with ID {}", sprintData.getName(), sprintData.getId());
         }
 
-        addIssueKeysAddedToAgileSprint(credentials, sprintDataDelta);
+        addIssueKeysAddedToAgileSprint(credentials, sprintDataDelta, issueFilter);
 
-        addIssuesRemovedFromAgileSprint(credentials, sprintDataDelta);
+        addIssuesRemovedFromAgileSprint(credentials, sprintDataDelta, issueFilter);
 
-        correctIssuesRemovedFromSprint(sprintData, sprintDataDelta);
+        correctIssuesRemovedFromSprint(sprintData, sprintDataDelta, issueFilter);
 
         sprintDataDelta.setAddedStoryPoints(calculateStoryPoints(credentials, sprintDataDelta.getAddedIssueKeys(),
                 estimationFieldName));
@@ -542,7 +551,7 @@ public class SprintService {
      */
     @Nullable
     public SprintDataDelta getSprintDataDelta(ClientCredentials credentials, String sprintIdentifier,
-            Boolean idenentifiedByID, String estimationFieldName) {
+            Boolean idenentifiedByID, String estimationFieldName, IssueFilter issueFilter) {
 
         SprintDataFull sprintData;
         SprintDataDelta sprintDataDelta;
@@ -553,7 +562,7 @@ public class SprintService {
             return null;
         }
 
-        sprintDataDelta = getSprintDataDelta(credentials, sprintData, estimationFieldName);
+        sprintDataDelta = getSprintDataDelta(credentials, sprintData, estimationFieldName, issueFilter);
 
         return sprintDataDelta;
 

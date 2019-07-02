@@ -15,6 +15,31 @@
 
 package net.netconomy.jiraassistant.base.services.filters;
 
-public class IssueFilter {
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+/**
+ * IssueFilter acts as configuration object which is handed down from the REST layer to services like the basicIssueService in order
+ * to filter out issues that should not be taken into consideration for reports.
+ */
+public class IssueFilter {
+    private Set<String> projectKeys;
+
+    public IssueFilter() {
+        this.projectKeys = new HashSet<>();
+    }
+
+    public Set<String> getProjectKeys() {
+        return projectKeys;
+    }
+
+    public void setProjectKeys(Set<String> projectKeys) {
+        this.projectKeys = projectKeys;
+    }
+
+    public void setProjectKeys(List<String> projectKeys) {
+        this.projectKeys.clear();
+        this.projectKeys.addAll(projectKeys);
+    }
 }

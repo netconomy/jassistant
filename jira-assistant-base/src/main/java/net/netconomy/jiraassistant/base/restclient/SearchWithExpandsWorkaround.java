@@ -71,8 +71,6 @@ public class SearchWithExpandsWorkaround {
         String restUrl;
         JSONObject jsonResult;
         JSONArray jsonIssues;
-        Integer totalIssues = 0;
-        Integer currentIssueLimit = 0;
 
         try {
 
@@ -81,23 +79,16 @@ public class SearchWithExpandsWorkaround {
 
             jsonResult = restConnector.getJsonFromRest(credentials, restUrl);
 
-            totalIssues = jsonResult.getInt("total");
+            int totalIssues = jsonResult.getInt("total");
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("The Query: '{}' came back with {} Issues", jqlQuery, totalIssues);
             }
 
-            if (startAt + MAXRESULTS > totalIssues) {
-                currentIssueLimit = totalIssues;
-            } else {
-                currentIssueLimit = startAt + MAXRESULTS;
-            }
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Processing Issues {} to {} from {} total Issues.", startAt + 1, currentIssueLimit, totalIssues);
-            }
-
             jsonIssues = jsonResult.getJSONArray("issues");
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Processing issues {} to {} of {} total issues.", startAt + 1, startAt + jsonIssues.length() + 1, totalIssues);
+            }
 
             for (int j = 0; j < jsonIssues.length(); j++) {
 

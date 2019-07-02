@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +31,12 @@ import org.springframework.stereotype.Service;
 import com.atlassian.jira.rest.client.api.IssueRestClient.Expandos;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import org.springframework.util.CollectionUtils;
 
 import net.netconomy.jiraassistant.base.JiraAssistantException;
 import net.netconomy.jiraassistant.base.data.config.ClientCredentials;
 import net.netconomy.jiraassistant.base.jirafunctions.JiraClientFactory;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
 
 @Service
 public class BasicIssueService {
@@ -86,6 +89,9 @@ public class BasicIssueService {
             Boolean withChangelog) {
 
         Map<String, Issue> issueMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(issueKeyList)) {
+            return issueMap;
+        }
 
         String changeLogString;
 
@@ -93,12 +99,12 @@ public class BasicIssueService {
 
             if (LOGGER.isInfoEnabled()) {
                 if (withChangelog) {
-                    changeLogString = "with Changelog";
+                    changeLogString = "with changelog";
                 } else {
-                    changeLogString = "without Changelog";
+                    changeLogString = "without changelog";
                 }
 
-                LOGGER.info("Retrieving {} Issues from Jira, {}.", issueKeyList.size(), changeLogString);
+                LOGGER.info("Retrieving {} issues from Jira {}.", issueKeyList.size(), changeLogString);
             }
 
             for (String currentKey : issueKeyList) {
@@ -156,6 +162,33 @@ public class BasicIssueService {
         }
 
         return onlyIssuesList;
+    }
+
+    public List<Issue> filterIssues(List<Issue> issues, IssueFilter filter) {
+        return issues.stream().filter(issue -> this.isIncluded(issue, filter)).collect(Collectors.toList());
+    }
+
+
+    public boolean isIncluded(String issueKey, IssueFilter filter) {
+        return this.isProjectIncluded(this.projectKeyFromIssueKey(issueKey), filter);
+    }
+
+    private boolean isProjectIncluded(String key, IssueFilter filter) {
+        if (filter == null || filter.getProjectKeys().isEmpty()) {
+            return true;
+        }
+        return filter.getProjectKeys().contains(key);
+    }
+
+    public boolean isIncluded(Issue issue, IssueFilter filter) {
+        if (issue.getProject() == null) {
+            return this.isIncluded(issue.getKey(), filter);
+        }
+        return this.isProjectIncluded(issue.getProject().getKey(), filter);
+    }
+
+    public List<String> filterIssueKeys(final List<String> issueKeys, final IssueFilter filter) {
+        return issueKeys.stream().filter(key -> this.isIncluded(key, filter)).collect(Collectors.toList());
     }
 
 }

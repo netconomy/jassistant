@@ -30,7 +30,9 @@ import net.netconomy.jiraassistant.base.data.config.ClientCredentials;
 import net.netconomy.jiraassistant.base.data.config.ProjectConfiguration;
 import net.netconomy.jiraassistant.base.data.sprint.SprintDataDelta;
 import net.netconomy.jiraassistant.base.services.config.ConfigurationService;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
 import net.netconomy.jiraassistant.base.services.issues.AdvancedIssueService;
+import net.netconomy.jiraassistant.base.services.issues.BasicIssueService;
 import net.netconomy.jiraassistant.base.services.issues.HistoryIssueService;
 import net.netconomy.jiraassistant.sprintanalysis.data.IssueStatistics;
 
@@ -50,6 +52,9 @@ public class IssueStatisticsService {
     
     @Autowired
     FlaggingStatisticsService flaggingStatisticsService;
+
+    @Autowired
+    BasicIssueService basicIssueService;
 
     private Integer calculateReopenCount(List<Issue> issues, DateTime sprintStart, DateTime sprintEnd)
             throws ConfigurationException {
@@ -94,7 +99,7 @@ public class IssueStatisticsService {
      * @throws ConfigurationException
      */
     IssueStatistics getIssueStatistics(List<Issue> issues, List<Issue> subIssues, DateTime startDate, DateTime endDate,
-            SprintDataDelta sprintDataDelta, ClientCredentials credentials) throws ConfigurationException {
+            SprintDataDelta sprintDataDelta, ClientCredentials credentials, IssueFilter filter) throws ConfigurationException {
         IssueStatistics issueStatistics = new IssueStatistics();
         Integer issueCount = 0;
         Double storyPoints = 0.0;
@@ -125,6 +130,9 @@ public class IssueStatisticsService {
         issueStatistics.setReopenCount(calculateReopenCount(issues, startDate, endDate));
 
         for (Issue currentIssue : issues) {
+            if (!this.basicIssueService.isIncluded(currentIssue, filter)) {
+                continue;
+            }
             currentEstimation = advancedIssueService
                     .getEstimation(currentIssue, configuration.getEstimationFieldName());
             currentStatus = historyIssueService.getStatusAtTime(currentIssue, endDate);
@@ -217,9 +225,9 @@ public class IssueStatisticsService {
      * @throws ConfigurationException
      */
     public IssueStatistics getIssueStatistics(List<Issue> issues, List<Issue> subIssues, DateTime startDate,
-            DateTime endDate, ClientCredentials credentials) throws ConfigurationException {
+            DateTime endDate, ClientCredentials credentials, IssueFilter issueFilter) throws ConfigurationException {
 
-        return getIssueStatistics(issues, subIssues, startDate, endDate, null, credentials);
+        return getIssueStatistics(issues, subIssues, startDate, endDate, null, credentials, issueFilter);
 
     }
 
