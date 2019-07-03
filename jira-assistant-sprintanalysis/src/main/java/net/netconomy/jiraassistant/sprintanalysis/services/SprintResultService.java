@@ -39,6 +39,7 @@ import net.netconomy.jiraassistant.base.data.sprint.SprintDataDelta;
 import net.netconomy.jiraassistant.base.data.sprint.SprintDataFull;
 import net.netconomy.jiraassistant.base.services.SprintService;
 import net.netconomy.jiraassistant.base.services.config.ConfigurationService;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
 import net.netconomy.jiraassistant.base.services.issues.AdvancedIssueService;
 import net.netconomy.jiraassistant.base.services.issues.BasicIssueService;
 import net.netconomy.jiraassistant.base.services.issues.HistoryIssueService;
@@ -75,7 +76,7 @@ public class SprintResultService {
 
 
     private void processIssuesIntoResultData(List<Issue> issueList, SprintResultData resultData, DateTime startDate,
-        DateTime endDate, ClientCredentials credentials) throws JSONException, ConfigurationException {
+        DateTime endDate, ClientCredentials credentials, IssueFilter issueFilter) throws JSONException, ConfigurationException {
 
         String currentIssueTypeName = "";
         List<Issue> stories = new ArrayList<>();
@@ -89,6 +90,9 @@ public class SprintResultService {
         Integer subIssueCount = 0;
 
         for (Issue currentIssue : issueList) {
+            if (!this.basicIssueService.isIncluded(currentIssue, issueFilter)) {
+                continue;
+            }
 
             resultData.addProjektKeyIfNotContained(basicIssueService.projectKeyFromIssue(currentIssue));
 
@@ -142,11 +146,11 @@ public class SprintResultService {
 
         resultData.setStoryStatistics(issueStatisticsService.getIssueStatistics(stories, storySubIssues,
             startDate,
-            endDate, resultData.getSprintDataDelta(), credentials));
+            endDate, resultData.getSprintDataDelta(), credentials, issueFilter));
         resultData.setDefectBugStatistics(issueStatisticsService.getIssueStatistics(defectsBugs, defectSubIssues,
-            startDate, endDate, resultData.getSprintDataDelta(), credentials));
+            startDate, endDate, resultData.getSprintDataDelta(), credentials, issueFilter));
         resultData.setTaskStatistics(issueStatisticsService.getIssueStatistics(tasks, taskSubIssues, startDate,
-            endDate, resultData.getSprintDataDelta(), credentials));
+            endDate, resultData.getSprintDataDelta(), credentials, issueFilter));
 
         resultData.setAdditionalDefectBugStatistics(additionalDefectBugStatisticsService
             .generateAdditionalDefectBugStatistics(defectsBugs, startDate, endDate,
@@ -173,6 +177,9 @@ public class SprintResultService {
         List<String> wantedFields, Boolean lightAnalysisExt, List<String> relevantProjects) throws JSONException,
         ConfigurationException {
 
+        IssueFilter issueFilter = new IssueFilter();
+        issueFilter.setProjectKeys(relevantProjects);
+
         SprintResultData resultData = new SprintResultData();
         DateTime startDate = sprintData.getStartDateAsDateTime();
         DateTime endDate;
@@ -183,12 +190,15 @@ public class SprintResultService {
 
         ProjectConfiguration configuration = configurationService.getProjectConfiguration();
 
-        LOGGER.info("Calculating SprintResult for {} Issues.", sprintData.getIssueList().size());
+        LOGGER.info("Calculating SprintResult for {} issue(s).", sprintData.getIssueList().size());
 
         // Write basic Sprint Data
         resultData.setSprintData(new SprintData(sprintData));
 
         resultData.addAllProjektKeysIfNotContained(relevantProjects);
+
+        // Make sure that only issues are included in the calculation that are part of the requested projects:
+        final List<Issue> issues = this.basicIssueService.filterIssues(sprintData.getIssueList(), issueFilter);
 
         // If lightAnalysis is null it will be false
         if (lightAnalysisExt != null) {
@@ -206,12 +216,12 @@ public class SprintResultService {
 
         // Light Issues will not be included in the light Analysis
         if (!lightAnalysis) {
-            resultData.setSprintDataLight(sprintService.getSprintDataLight(sprintData, wantedFields));
+            resultData.setSprintDataLight(sprintService.getSprintDataLight(sprintData, wantedFields, issues));
         }
 
         try {
             resultData
-                .setSprintDataDelta(sprintService.getSprintDataDelta(credentials, sprintData, configuration.getEstimationFieldName()));
+                .setSprintDataDelta(sprintService.getSprintDataDelta(credentials, sprintData, configuration.getEstimationFieldName(), issueFilter));
         } catch (HttpClientErrorException e) {
             LOGGER.warn("The RapidView with the ID {} was not found, so no Sprint Delta could be calculated. "
                 + "The Message from the Server was: {}", sprintData.getRapidViewId(), e.getLocalizedMessage());
@@ -232,18 +242,17 @@ public class SprintResultService {
         // Sub Issues will not be counted in the reopen Count
         for (String currentReopenStatus : configuration.getReopenedStatus()) {
             reopenCount += historyIssueService
-                .getStateCountForIssues(basicIssueService.getOnlyIssues(sprintData.getIssueList()),
+                .getStateCountForIssues(basicIssueService.getOnlyIssues(issues),
                     currentReopenStatus, startDate, endDate);
         }
 
         resultData.setReopenCount(reopenCount);
 
-        processIssuesIntoResultData(sprintData.getIssueList(), resultData, startDate, endDate, credentials);
+        processIssuesIntoResultData(issues, resultData, startDate, endDate, credentials, issueFilter);
 
         // add Issues Removed during Sprint to SprintData Light, only when not doing a light Analysis
         if (!lightAnalysis) {
-            removedIssues = basicIssueService.getMultipleIssues(credentials, resultData.getSprintDataDelta()
-                .getRemovedIssueKeys(), false);
+            removedIssues = basicIssueService.getMultipleIssues(credentials, this.basicIssueService.filterIssueKeys(resultData.getSprintDataDelta().getRemovedIssueKeys(), issueFilter), false);
 
             for (Issue currentIssue : removedIssues.values()) {
 

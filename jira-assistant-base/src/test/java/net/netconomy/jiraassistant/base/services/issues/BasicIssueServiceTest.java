@@ -27,6 +27,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import net.netconomy.jiraassistant.base.BaseDIConfiguration;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
+
+import java.util.Arrays;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = { BaseDIConfiguration.class })
@@ -64,6 +67,14 @@ public class BasicIssueServiceTest {
 
         assertEquals(expectedProjectKey3, actualProjectKey);
 
+    }
+
+    @Test
+    public void testFilterIssueKeys() {
+        IssueFilter onlyA = new IssueFilter();
+        onlyA.getProjectKeys().add("A");
+
+        assertEquals(Arrays.asList("A-1", "A-2"), this.basicIssueService.filterIssueKeys(Arrays.asList("A-1", "A-2", "B-1"), onlyA));
     }
 
     @After

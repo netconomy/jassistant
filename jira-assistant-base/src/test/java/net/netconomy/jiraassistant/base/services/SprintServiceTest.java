@@ -18,6 +18,9 @@ package net.netconomy.jiraassistant.base.services;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,6 +53,7 @@ import net.netconomy.jiraassistant.base.data.sprint.SprintData;
 import net.netconomy.jiraassistant.base.data.sprint.SprintDataDelta;
 import net.netconomy.jiraassistant.base.data.sprint.SprintDataFull;
 import net.netconomy.jiraassistant.base.restclient.JiraAgileRestService;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
 import net.netconomy.jiraassistant.base.services.issues.AdvancedIssueService;
 import net.netconomy.jiraassistant.base.services.issues.BasicIssueService;
 
@@ -278,6 +282,8 @@ public class SprintServiceTest {
         sprintDataFullDummy.setId(5);
         sprintDataFullDummy.setRapidViewId(6);
 
+        IssueFilter issueFilter = new IssueFilter();
+
         try {
 
             testJsonObject = new JSONObject(
@@ -291,12 +297,14 @@ public class SprintServiceTest {
                     .thenReturn(addedIssues);
             when(mockedBasicIssueUtil.getMultipleIssues(testCredentials, removedIssueKeys, false)).thenReturn(
                     removedIssues);
+            when(mockedBasicIssueUtil.isIncluded(anyString(), eq(issueFilter))).thenReturn(true);
+            when(mockedBasicIssueUtil.isIncluded(any(Issue.class), eq(issueFilter))).thenReturn(true);
 
             when(mockedAdvancedIssueUtil.getEstimation(mockedIssue, estimationFieldName)).thenReturn(3.0);
             when(mockedAdvancedIssueUtil.getEstimation(mockedIssue2, estimationFieldName)).thenReturn(3.0);
             when(mockedAdvancedIssueUtil.getEstimation(mockedIssue3, estimationFieldName)).thenReturn(6.0);
 
-            sprintDataDelta = sprintUtils.getSprintDataDelta(testCredentials, sprintDataFullDummy, estimationFieldName);
+            sprintDataDelta = sprintUtils.getSprintDataDelta(testCredentials, sprintDataFullDummy, estimationFieldName, issueFilter);
 
             assertTrue("The added Issue Key was not contained in Delta.",
                     sprintDataDelta.getAddedIssueKeys().contains("TST-1"));
@@ -341,7 +349,7 @@ public class SprintServiceTest {
 
         try {
 
-            sprintUtils.getSprintDataDelta(testCredentials, sprintDataFullDummy, estimationFieldName);
+            sprintUtils.getSprintDataDelta(testCredentials, sprintDataFullDummy, estimationFieldName, new IssueFilter());
 
         } catch (Exception e) {
             e.printStackTrace();

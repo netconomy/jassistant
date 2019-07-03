@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import org.apache.commons.configuration.ConfigurationException;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -45,6 +46,7 @@ import net.netconomy.jiraassistant.base.data.config.ProjectConfiguration;
 import net.netconomy.jiraassistant.base.data.sprint.SprintDataDelta;
 import net.netconomy.jiraassistant.base.data.sprint.SprintDataFull;
 import net.netconomy.jiraassistant.base.services.config.ConfigurationService;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
 import net.netconomy.jiraassistant.base.services.issues.AdvancedIssueService;
 import net.netconomy.jiraassistant.base.services.issues.HistoryIssueService;
 import net.netconomy.jiraassistant.sprintanalysis.SprintAnalysisTestDIConfiguration;
@@ -126,6 +128,18 @@ public class IssueStatisticsServiceTest extends AbstractJUnit4SpringContextTests
         when(mockedIssue6.getKey()).thenReturn("TST-6");
         when(mockedIssue7.getKey()).thenReturn("TST-7");
 
+        BasicProject proj = new BasicProject(null, "TST", 0l, "");
+        when(mockedIssue1.getProject()).thenReturn(proj);
+        when(mockedIssue2.getProject()).thenReturn(proj);
+        when(mockedIssue3.getProject()).thenReturn(proj);
+        when(mockedIssue4.getProject()).thenReturn(proj);
+        when(mockedIssue5.getProject()).thenReturn(proj);
+        when(mockedIssue6.getProject()).thenReturn(proj);
+        when(mockedIssue7.getProject()).thenReturn(proj);
+
+        when(mockedSubIssue1.getProject()).thenReturn(proj);
+        when(mockedSubIssue2.getProject()).thenReturn(proj);
+
         when(
                 mockedHistoryIssueService.getValueDurationForIssueField(any(Issue.class), any(String.class),
                         any(String.class), any(DateTime.class), any(DateTime.class))).thenReturn(new Duration(0));
@@ -203,9 +217,11 @@ public class IssueStatisticsServiceTest extends AbstractJUnit4SpringContextTests
         when(mockedAdvancedIssueService.getEstimation(mockedIssue7, estimationFieldName)).thenReturn(
                 Double.valueOf("7.0"));
 
+        IssueFilter issueFilter = new IssueFilter();
+        issueFilter.getProjectKeys().add("TST");
         IssueStatistics actualStatistics = issueStatisticsService.getIssueStatistics(
                 sprintDataDummy.getIssueList(), subIssueList, testStartDate, testEndDate, sprintDataDeltaDummy,
-                credentials);
+                credentials, issueFilter);
 
         assertEquals("Wrong number of Issues", Integer.valueOf(7), actualStatistics.getNumberOfIssues());
         assertEquals("Wrong number of SubIssues", Integer.valueOf(2), actualStatistics.getNumberOfSubIssues());

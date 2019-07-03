@@ -131,7 +131,7 @@ public class JiraSearch {
             resultList = getIssueListFromIterable(result.getIssues());
 
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Processing Issues {} to {} from {} total Issues.", startAt + 1, startAt + maxResults, result.getTotal());
+                LOGGER.info("Retrieved {} issues (starting at {}) from {} total issues.", resultList.size(), startAt, result.getTotal());
             }
 
             return resultList;
@@ -139,16 +139,6 @@ public class JiraSearch {
         } catch (IOException | URISyntaxException e) {
             throw new JiraAssistantException(e.getMessage(), e);
         }
-    }
-
-    private Integer getIssueLimit(Integer totalIssues, Integer processedIssues, Integer maxResults) {
-
-        if (processedIssues + maxResults > totalIssues) {
-            return totalIssues;
-        } else {
-            return processedIssues + maxResults;
-        }
-
     }
 
     /**
@@ -168,53 +158,21 @@ public class JiraSearch {
      * @return
      */
     public List<Issue> searchJiraGetAllIssues(ClientCredentials credentials, String jqlQuery, Set<String> fields) {
-
-        int totalIssues = 0;
-        int processedIssues = 0;
-        int currentIssueLimit = 0;
-
+        int totalIssues;
         List<Issue> allIssues = new ArrayList<>();
-
         SearchResult result;
 
         try (JiraRestClient client = clientFactory.create(credentials);) {
-
-            result = searchJira(client, jqlQuery, MAXRESULTS, 0, fields);
-
-            totalIssues = result.getTotal();
-
-            currentIssueLimit = getIssueLimit(totalIssues, processedIssues, MAXRESULTS);
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Processing Issues {} to {} from {} total Issues.", processedIssues + 1, currentIssueLimit, totalIssues);
-            }
-
-            processedIssues += MAXRESULTS;
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("The Query: '{}' came back with {} Issues", jqlQuery, totalIssues);
-            }
-
-            allIssues.addAll(getIssueListFromIterable(result.getIssues()));
-
-            if (totalIssues <= MAXRESULTS) {
-                return allIssues;
-            }
-
-            for (int i = MAXRESULTS; i < totalIssues; i += MAXRESULTS) {
-
-                result = searchJira(client, jqlQuery, MAXRESULTS, i, fields);
-
-                currentIssueLimit = getIssueLimit(totalIssues, processedIssues, MAXRESULTS);
-
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Processing Issues {} to {} from {} total Issues.", processedIssues + 1, currentIssueLimit, totalIssues);
-                }
-
-                processedIssues += MAXRESULTS;
-
+            int startAt = 0;
+            while(true) {
+                result = searchJira(client, jqlQuery, MAXRESULTS, startAt, fields);
+                totalIssues = result.getTotal();
                 allIssues.addAll(getIssueListFromIterable(result.getIssues()));
 
+                if (totalIssues >= allIssues.size()) {
+                    break;
+                }
+                startAt += MAXRESULTS;
             }
 
             return allIssues;

@@ -35,6 +35,7 @@ import net.netconomy.jiraassistant.base.jirafunctions.JiraSearch;
 import net.netconomy.jiraassistant.base.services.DataConversionService;
 import net.netconomy.jiraassistant.base.services.config.ConfigurationService;
 import net.netconomy.jiraassistant.base.services.filters.BacklogFilterService;
+import net.netconomy.jiraassistant.base.services.filters.IssueFilter;
 import net.netconomy.jiraassistant.base.services.issues.AdvancedIssueService;
 import net.netconomy.jiraassistant.base.services.issues.BasicIssueService;
 import net.netconomy.jiraassistant.base.services.issues.HistoryIssueService;
@@ -98,7 +99,7 @@ public class KanbanResultService {
     }
 
     private void processIssuesIntoResultData(List<Issue> issueList, KanbanResultData resultData, DateTime startDate, DateTime endDate,
-            ClientCredentials credentials, Boolean withAltEstimations) throws JSONException, ConfigurationException {
+            ClientCredentials credentials, Boolean withAltEstimations, IssueFilter issueFilter) throws JSONException, ConfigurationException {
 
         String currentIssueTypeName = "";
         List<Issue> stories = new ArrayList<>();
@@ -201,11 +202,11 @@ public class KanbanResultService {
                 startDate, endDate, credentials));
         } else {
             resultData.setStoryStatistics(issueStatisticsService.getIssueStatistics(stories, storySubIssues, startDate,
-                endDate, credentials));
+                endDate, credentials, issueFilter));
             resultData.setDefectBugStatistics(issueStatisticsService.getIssueStatistics(defectsBugs, defectSubIssues,
-                startDate, endDate, credentials));
+                startDate, endDate, credentials, issueFilter));
             resultData.setTaskStatistics(issueStatisticsService.getIssueStatistics(tasks, taskSubIssues, startDate,
-                endDate, credentials));
+                endDate, credentials, issueFilter));
         }
 
         resultData.setKanbanMetrics(kanbanMetricsService.calculateKanbanMetrics(allIssues, endDate));
@@ -223,6 +224,8 @@ public class KanbanResultService {
             Boolean lightAnalysisExt, List<String> relevantProjects, Boolean withAltEstimations)
             throws JSONException, ConfigurationException {
 
+        IssueFilter issueFilter = new IssueFilter();
+        issueFilter.setProjectKeys(relevantProjects);
         KanbanResultData kanbanResultData = new KanbanResultData(withAltEstimations);
         Integer numberOfResults = 0;
         List<String> issueKeys;
@@ -243,7 +246,7 @@ public class KanbanResultService {
                     + ". Please try to narrow down the timeframe or search criteria for this Analysis.");
         }
         
-        issueKeys = jiraSearch.searchJiraGetAllKeys(credentials, backlogFilter);
+        issueKeys = this.basicIssueService.filterIssueKeys(jiraSearch.searchJiraGetAllKeys(credentials, backlogFilter), issueFilter);
         
         LOGGER.info("Calculating KanbanResults for {} Issues between {} and {}.", issueKeys.size(),
             dataConversionService.convertDateTimeToJQLDate(startDate), dataConversionService.convertDateTimeToJQLDate(endDate));
@@ -287,7 +290,7 @@ public class KanbanResultService {
 
         kanbanResultData.setReopenCount(reopenCount);
 
-        processIssuesIntoResultData(allIssues, kanbanResultData, startDate, endDate, credentials, withAltEstimations);
+        processIssuesIntoResultData(allIssues, kanbanResultData, startDate, endDate, credentials, withAltEstimations, issueFilter);
 
         if(withAltEstimations) {
             // calculate all finished Issues
